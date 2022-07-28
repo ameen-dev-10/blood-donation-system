@@ -423,8 +423,11 @@ Dashboard.layout = Admin;
 export default Dashboard;
 
 export async function getServerSideProps() {
-  // Fetch data from external API
-  const res = await fetch(`${window.location.origin}/api/users`);
+  const res = await fetch(
+    `${
+      window?.location?.origin || "https://blood-donation-system.vercel.app"
+    }/api/users`
+  );
   const data = await res.json();
 
   // Pass data to the page via props
