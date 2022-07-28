@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 // reactstrap components
 import {
@@ -17,8 +17,17 @@ import {
 import Admin from "layouts/Admin.js";
 // core components
 import UserHeader from "components/Headers/UserHeader.js";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
 
 function Profile() {
+  const { user } = useSelector((state) => state.auth);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user?.name) router.push("/auth/login");
+  }, []);
+
   return (
     <>
       <UserHeader />

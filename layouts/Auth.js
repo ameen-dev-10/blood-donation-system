@@ -21,7 +21,7 @@ function Auth(props) {
       <div className="main-content">
         <AuthNavbar />
         <div className="header bg-gradient-info py-7 py-lg-8">
-          <Container>
+          {/* <Container>
             <div className="header-body text-center mb-7">
               <Row className="justify-content-center">
                 <Col lg="5" md="6">
@@ -33,7 +33,7 @@ function Auth(props) {
                 </Col>
               </Row>
             </div>
-          </Container>
+          </Container> */}
           <div className="separator separator-bottom separator-skew zindex-100">
             <svg
               xmlns="http://www.w3.org/2000/svg"

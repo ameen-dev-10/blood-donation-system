@@ -24,3 +24,9 @@ module.exports = withFonts(
     )
   )
 );
+
+// module.exports = {
+//   env: {
+//     MONGO_URI: `mongodb+srv://ameenilyas786:$F-59MrcUQ-78g5@cluster0.wzmng.mongodb.net/?retryWrites=true&w=majority`,
+//   },
+// };

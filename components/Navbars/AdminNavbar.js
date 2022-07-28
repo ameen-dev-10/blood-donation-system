@@ -16,9 +16,30 @@ import {
   Nav,
   Container,
   Media,
+  Button,
 } from "reactstrap";
+import { useSelector, useDispatch } from "react-redux";
+import { userLogout } from "../../store/authSlice";
+import { useRouter } from "next/router";
+import axios from "axios";
 
 function AdminNavbar({ brandText }) {
+  const { user } = useSelector((state) => state.auth);
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  async function logoutHandler() {
+    console.log("I Ran");
+    try {
+      const url = `${window.location.origin}/api/logout`;
+      const { data } = await axios.post(url, user);
+      dispatch(userLogout());
+      router.push("/auth/login");
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+
   return (
     <>
       <Navbar className="navbar-top navbar-dark" expand="md" id="navbar-main">
@@ -47,14 +68,26 @@ function AdminNavbar({ brandText }) {
                   <span className="avatar avatar-sm rounded-circle">
                     <img
                       alt="..."
-                      src={require("assets/img/theme/team-4-800x800.jpg")}
+                      src={
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRl8UcJiZxXc_q-Zr-1dohkW5sd8lTxvpPj-g&usqp=CAU"
+                      }
                     />
                   </span>
                   <Media className="ml-2 d-none d-lg-block">
                     <span className="mb-0 text-sm font-weight-bold">
-                      Jessica Jones
+                      {user?.name}
                     </span>
                   </Media>
+                  {/* <div className="col text-right">
+                    <Button
+                      color="primary"
+                      href="#pablo"
+                      onClick={logoutHandler}
+                      size="sm"
+                    >
+                      Sign out
+                    </Button>
+                  </div> */}
                 </Media>
               </DropdownToggle>
               <DropdownMenu className="dropdown-menu-arrow" right>
@@ -67,7 +100,7 @@ function AdminNavbar({ brandText }) {
                     <span>My profile</span>
                   </DropdownItem>
                 </Link>
-                <Link href="/admin/profile">
+                {/* <Link href="/admin/profile">
                   <DropdownItem>
                     <i className="ni ni-settings-gear-65" />
                     <span>Settings</span>
@@ -84,9 +117,9 @@ function AdminNavbar({ brandText }) {
                     <i className="ni ni-support-16" />
                     <span>Support</span>
                   </DropdownItem>
-                </Link>
-                <DropdownItem divider />
-                <DropdownItem href="#pablo" onClick={(e) => e.preventDefault()}>
+                </Link> */}
+                {/* <DropdownItem divider  /> */}
+                <DropdownItem onClick={logoutHandler}>
                   <i className="ni ni-user-run" />
                   <span>Logout</span>
                 </DropdownItem>

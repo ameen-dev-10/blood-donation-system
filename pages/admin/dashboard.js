@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 // node.js library that concatenates classes (strings)
 import classnames from "classnames";
 // javascipt plugin for creating charts
@@ -19,6 +19,12 @@ import {
   Container,
   Row,
   Col,
+  Form,
+  FormGroup,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  Input,
 } from "reactstrap";
 // layout for this page
 import Admin from "layouts/Admin.js";
@@ -31,26 +37,94 @@ import {
 } from "variables/charts.js";
 
 import Header from "components/Headers/Header.js";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
 
-const Dashboard = (props) => {
-  const [activeNav, setActiveNav] = React.useState(1);
-  const [chartExample1Data, setChartExample1Data] = React.useState("data1");
+const Dashboard = ({ data }) => {
+  const { user } = useSelector((state) => state.auth);
+  const [donor, setDonors] = useState(data?.data);
+
+  const router = useRouter();
+  const bloodGroups = ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"];
+
+  useEffect(() => {
+    if (!user?.name) router.push("/auth/login");
+  }, []);
+
+  console.log({ router });
+
+  async function getDonors(bloodGroup) {
+    if (!bloodGroup) return setDonors(data?.data);
+    const url = `${window.location.origin}/api/donor`;
+
+    const { coordinates } = user.location;
+    const payload = {
+      coordinates,
+      bloodGroup,
+    };
+    try {
+      const response = await axios.post(url, payload);
+      setDonors(response.data.data);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  // client side data filter
+  {
+    // useEffect(() => {
+    //   const timeout = setTimeout(bgFilterHandler, 100);
+    //   return () => {
+    //     clearTimeout(timeout);
+    //   };
+    // }, [bloodGroup]);
+    // function bgFilterHandler(e) {
+    //   if (!bloodGroups.includes(bloodGroup)) return setUsers(data?.data);
+    //   let donorsGroup = [];
+    //   switch (bloodGroup) {
+    //     case "O-":
+    //       donorsGroup = ["O-"];
+    //       break;
+    //     case "O+":
+    //       donorsGroup = ["O-", "O+"];
+    //       break;
+    //     case "A-":
+    //       donorsGroup = ["O-", "A-"];
+    //       break;
+    //     case "B-":
+    //       donorsGroup = ["O-", "B-"];
+    //       break;
+    //     case "A+":
+    //       donorsGroup = ["O-", "O+", "A-", "A+"];
+    //       break;
+    //     case "B+":
+    //       donorsGroup = ["O-", "O+", "B-", "B+"];
+    //       break;
+    //     case "AB-":
+    //       donorsGroup = ["O-", "A-", "B-", "AB-"];
+    //       break;
+    //     case "AB+":
+    //       donorsGroup = ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"];
+    //       break;
+    //   }
+    //   const updatedUsers = data?.data.filter(
+    //     (user) => donorsGroup.includes(user.blood_group) && user.isLogin
+    //   );
+    //   setUsers(updatedUsers);
+    // }
+  }
 
   if (window.Chart) {
     parseOptions(Chart, chartOptions());
   }
 
-  const toggleNavs = (e, index) => {
-    e.preventDefault();
-    setActiveNav(index);
-    setChartExample1Data("data" + index);
-  };
   return (
     <>
       <Header />
       {/* Page content */}
       <Container className="mt--7" fluid>
-        <Row>
+        {/* <Row>
           <Col className="mb-5 mb-xl-0" xl="8">
             <Card className="shadow">
               <CardHeader className="bg-transparent">
@@ -93,7 +167,6 @@ const Dashboard = (props) => {
                 </Row>
               </CardHeader>
               <CardBody>
-                {/* Chart */}
                 <div className="chart">
                   <Line
                     data={chartExample1[chartExample1Data]}
@@ -117,7 +190,6 @@ const Dashboard = (props) => {
                 </Row>
               </CardHeader>
               <CardBody>
-                {/* Chart */}
                 <div className="chart">
                   <Bar
                     data={chartExample2.data}
@@ -127,16 +199,62 @@ const Dashboard = (props) => {
               </CardBody>
             </Card>
           </Col>
-        </Row>
+        </Row> */}
         <Row className="mt-5">
-          <Col className="mb-5 mb-xl-0" xl="8">
+          <Col className="mb-5 mb-xl-0" xl="12">
             <Card className="shadow">
               <CardHeader className="border-0">
-                <Row className="align-items-center">
+                <Row className="align-items-center ">
                   <div className="col">
-                    <h3 className="mb-0">Page visits</h3>
+                    <h3 className="mb-0">Donor Details</h3>
                   </div>
-                  <div className="col text-right">
+                  {true && (
+                    <FormGroup>
+                      <InputGroup className="input-group-alternative">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="ni ni-pin-3" />
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input
+                          required
+                          placeholder="Select Your Blood Group"
+                          type="select"
+                          autoComplete="new-Blood-Group"
+                          // value={bloodGroup}
+                          onChange={(e) => getDonors(e.target.value)}
+                        >
+                          <option value="" selected>
+                            Select Your Blood Group
+                          </option>
+                          {bloodGroups.map((group) => (
+                            <option key={group} value={group}>
+                              {group}
+                            </option>
+                          ))}
+                        </Input>
+                      </InputGroup>
+                    </FormGroup>
+                  )}
+
+                  {/* <Form className="navbar-search  form-inline mr-3 d-none d-md-flex ml-lg-auto">
+                    <FormGroup className="mb-0">
+                      <InputGroup className="input-group-alternative">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="fas fa-search" />
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input
+                          onChange={(e) => setSearch(e.target.value)}
+                          placeholder="Enter Recepient Blood Group, ( A+, AB+ ... )"
+                          type="text"
+                        />
+                      </InputGroup>
+                    </FormGroup>
+                  </Form> */}
+
+                  {/* <div className="col text-right">
                     <Button
                       color="primary"
                       href="#pablo"
@@ -145,67 +263,48 @@ const Dashboard = (props) => {
                     >
                       See all
                     </Button>
-                  </div>
+                  </div> */}
                 </Row>
               </CardHeader>
               <Table className="align-items-center table-flush" responsive>
                 <thead className="thead-light">
                   <tr>
-                    <th scope="col">Page name</th>
-                    <th scope="col">Visitors</th>
-                    <th scope="col">Unique users</th>
-                    <th scope="col">Bounce rate</th>
+                    <th scope="col">Donor Name</th>
+                    <th className="text-center" scope="col">
+                      Age
+                    </th>
+                    <th className="text-center" scope="col">
+                      Date of Birth
+                    </th>
+                    <th className="text-center" scope="col">
+                      Address
+                    </th>
+                    <th className="text-center" scope="col">
+                      Blood Group
+                    </th>
+                    <th className="text-right" scope="col">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">/argon/</th>
-                    <td>4,569</td>
-                    <td>340</td>
-                    <td>
-                      <i className="fas fa-arrow-up text-success mr-3" /> 46,53%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">/argon/index.html</th>
-                    <td>3,985</td>
-                    <td>319</td>
-                    <td>
-                      <i className="fas fa-arrow-down text-warning mr-3" />{" "}
-                      46,53%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">/argon/charts.html</th>
-                    <td>3,513</td>
-                    <td>294</td>
-                    <td>
-                      <i className="fas fa-arrow-down text-warning mr-3" />{" "}
-                      36,49%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">/argon/tables.html</th>
-                    <td>2,050</td>
-                    <td>147</td>
-                    <td>
-                      <i className="fas fa-arrow-up text-success mr-3" /> 50,87%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">/argon/profile.html</th>
-                    <td>1,795</td>
-                    <td>190</td>
-                    <td>
-                      <i className="fas fa-arrow-down text-danger mr-3" />{" "}
-                      46,53%
-                    </td>
-                  </tr>
+                  {donor?.map((user) => (
+                    <tr key={user._id}>
+                      <th>{user?.name}</th>
+                      <th className="text-center">{user?.age}</th>
+                      <th className="text-center">{user?.dob.split("T")[0]}</th>
+                      <td className="text-center">{user?.address}</td>
+                      <td className="text-center">{user?.blood_group}</td>
+                      <td className="text-right">
+                        {user?.isLogin ? "Online" : "Offline"}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </Table>
             </Card>
           </Col>
-          <Col xl="4">
+          {/* <Col xl="4">
             <Card className="shadow">
               <CardHeader className="border-0">
                 <Row className="align-items-center">
@@ -312,7 +411,7 @@ const Dashboard = (props) => {
                 </tbody>
               </Table>
             </Card>
-          </Col>
+          </Col> */}
         </Row>
       </Container>
     </>
@@ -322,3 +421,12 @@ const Dashboard = (props) => {
 Dashboard.layout = Admin;
 
 export default Dashboard;
+
+export async function getServerSideProps() {
+  // Fetch data from external API
+  const res = await fetch(`${window.location.origin}/api/users`);
+  const data = await res.json();
+
+  // Pass data to the page via props
+  return { props: { data } };
+}
